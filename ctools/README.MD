@@ -17,5 +17,3 @@ For the moment, it includes the following tools:
 - **CSS tools** — tools to cache and sanitize CSS easily to make user-input CSS safe.
 
 This description comes straight from the classic **Drupal 7-era project page** (and closely matches the original README), capturing CTools at its peak as the foundational Swiss Army knife for many of the most powerful site-building modules in the Drupal 7 ecosystem (like Panels, Views bulk operations, etc.).
-
-Note: Drupal 7 is end-of-life, and this version of CTools is legacy — use only for historical reference or maintaining old sites!

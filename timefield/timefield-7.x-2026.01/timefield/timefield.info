@@ -10,6 +10,6 @@ files[] = views/timefield_handler_sort_timefield_duration.inc
 files[] = views/timefield_handler_filter_timefield_duration.inc
 files[] = timefield.test
 
-version = "7.x.2026.01"
+version = "7.x-2026.01"
 project = "timefield"
 

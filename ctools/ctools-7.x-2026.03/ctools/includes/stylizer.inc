@@ -207,7 +207,12 @@ function ctools_stylizer_get_settings_name($settings) {
  * This function will make sure the path exists.
  */
 function ctools_stylizer_get_image_path($plugin, $settings, $check = TRUE) {
-  $path = 'public://ctools/style/' . $settings['name'] . '/' . md5(serialize($settings['palette']));
+  // Sanitize name to prevent path traversal attacks.
+  $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $settings['name']);
+  if (empty($name)) {
+    return FALSE;
+  }
+  $path = 'public://ctools/style/' . $name . '/' . md5(serialize($settings['palette']));
   if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     drupal_set_message(t('Unable to create CTools styles cache directory @path. Check the permissions on your files directory.', array('@path' => $path)), 'error');
     return;
@@ -220,7 +225,9 @@ function ctools_stylizer_get_image_path($plugin, $settings, $check = TRUE) {
  * Get the id used to cache CSS for a given style plugin and settings.
  */
 function ctools_stylizer_get_css_id($plugin, $settings) {
-  return 'ctools-stylizer:' . $settings['name'] . ':' . md5(serialize($settings['palette']));
+  // Sanitize name to prevent injection attacks.
+  $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $settings['name']);
+  return 'ctools-stylizer:' . $name . ':' . md5(serialize($settings['palette']));
 }
 
 /**

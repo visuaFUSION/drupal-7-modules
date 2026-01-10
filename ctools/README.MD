@@ -43,9 +43,32 @@ This description comes straight from the legacy **Drupal 7-era project page**, c
 - **Issue:** [#3497028](https://www.drupal.org/project/ctools/issues/3497028)
 - **Fix:** Added `isset($conf['input_form'])` check before accessing the configuration value
 
+### Security Hardening
+
+**Path Traversal Prevention — stylizer.inc**
+- **File:** `includes/stylizer.inc`
+- **Fix:** Added input sanitization in `ctools_stylizer_get_image_path()` and `ctools_stylizer_get_css_id()` to prevent path traversal attacks via malformed style names
+
 ### Not Applied
 
 Modal accessibility patches are documented but not applied due to complexity. See `MODAL_ACCESSIBILITY_PATCHES.md` for details.
+
+---
+
+## Security Notes
+
+CTools contains architectural patterns inherited from Drupal 7's design that warrant awareness:
+
+| Pattern | Location | Risk Level | Notes |
+|---------|----------|------------|-------|
+| `eval()` for exports | `includes/export.inc` | **Admin-only** | Intentional D7 design for code-based exports; only admins can import |
+| `unserialize()` on cache | `includes/object-cache.inc` | **Low** | Operates on database-cached data; requires DB write access to exploit |
+| `.html()` in modals | `js/modal.js` | **Medium** | Server-side must sanitize output; use `check_plain()` and `filter_xss()` |
+
+**Recommendations:**
+- Restrict admin permissions to trusted users only
+- Ensure server-side output sanitization in all content rendered in modals
+- Do not import exports from untrusted sources
 
 ---
 

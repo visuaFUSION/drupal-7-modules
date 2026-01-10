@@ -1,0 +1,8 @@
+name = Custom rulesets
+description = Create custom, exportable, reusable access rulesets for applications like Panels.
+core = 7.x
+package = Chaos tool suite
+dependencies[] = ctools:ctools
+
+version = "7.x-2026.03"
+project = "ctools"

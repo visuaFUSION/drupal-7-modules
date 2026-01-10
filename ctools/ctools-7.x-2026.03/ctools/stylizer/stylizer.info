@@ -1,0 +1,9 @@
+name = Stylizer
+description = Create custom styles for applications such as Panels.
+core = 7.x
+package = Chaos tool suite
+dependencies[] = ctools:ctools
+dependencies[] = drupal:color
+
+version = "7.x-2026.03"
+project = "ctools"

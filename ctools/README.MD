@@ -1,4 +1,4 @@
-**Chaos Tool Suite (CTools) for Drupal 7.x**
+# Chaos Tool Suite (CTools) for Drupal 7.x
 
 This suite is primarily a set of APIs and tools to improve the developer experience. It also contains a module called **Page Manager** whose job is to manage pages. In particular it manages panel pages, but as it grows it will be able to manage far more than just Panels.
 
@@ -16,4 +16,50 @@ For the moment, it includes the following tools:
 - **Form wizard** — an API to make multi-step forms much easier.
 - **CSS tools** — tools to cache and sanitize CSS easily to make user-input CSS safe.
 
-This description comes straight from the classic **Drupal 7-era project page** (and closely matches the original README), capturing CTools at its peak as the foundational Swiss Army knife for many of the most powerful site-building modules in the Drupal 7 ecosystem (like Panels, Views bulk operations, etc.).
+This description comes straight from the legacy **Drupal 7-era project page**, capturing CTools at its peak as the foundational Swiss Army knife for many of the most powerful site-building modules in the Drupal 7 ecosystem (like Panels, Views bulk operations, etc.).
+
+---
+
+## Versions
+
+| Directory | Version | Status |
+|-----------|---------|--------|
+| `ctools-7.x-1.21/` | 7.x-1.21 | Original from drupal.org |
+| `ctools-7.x-2026.03/` | 7.x-2026.03 | Updated for Drupal 7 LTSR |
+
+---
+
+## Changes in 7.x-2026.03
+
+### Bug Fixes
+
+**PHP 8.1 Compatibility — "Attempt to assign property on bool"**
+- **File:** `includes/content.inc`
+- **Issue:** [#3413093](https://www.drupal.org/project/ctools/issues/3413093)
+- **Fix:** Added `!is_object($content)` check in `ctools_content_render()` to handle render callbacks that return non-object values
+
+**Undefined Index Fix — term.inc**
+- **File:** `plugins/arguments/term.inc`
+- **Issue:** [#3497028](https://www.drupal.org/project/ctools/issues/3497028)
+- **Fix:** Added `isset($conf['input_form'])` check before accessing the configuration value
+
+### Not Applied
+
+Modal accessibility patches are documented but not applied due to complexity. See `MODAL_ACCESSIBILITY_PATCHES.md` for details.
+
+---
+
+## Submodules
+
+| Module | Description |
+|--------|-------------|
+| **Chaos tools** | Core API library |
+| **Page manager** | UI and API to manage pages |
+| **Views content panes** | Allows Views content in Panels |
+| **Custom content panes** | Create exportable content panes |
+| **Custom rulesets** | Create exportable access rulesets |
+| **Stylizer** | Create custom styles for Panels |
+| **Bulk Export** | Bulk export data objects |
+| **Term Depth access** | Access control based on term depth |
+| **CTools AJAX Example** | Example module for AJAX usage |
+| **CTools Plugin Example** | Example module for plugin development |

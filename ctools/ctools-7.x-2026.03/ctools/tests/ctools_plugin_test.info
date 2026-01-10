@@ -1,0 +1,9 @@
+name = Chaos tools plugins test
+description = Provides hooks for testing ctools plugins.
+package = Chaos tool suite
+core = 7.x
+dependencies[] = ctools:ctools
+hidden = TRUE
+
+version = "7.x-2026.03"
+project = "ctools"

@@ -1,0 +1,3 @@
+This module delegates authentication to the web server. It is useful in cases where HTTP authentication, NTLM, or .htaccess authentication are used and is especially useful as an easy way to implement single sign on for MS Windows networks. With this module, Drupal honours the web server's authentication. Users don't maintain separate passwords for Drupal, and terminated users automatically become inaccessible in Drupal. If you are running an LDAP server, or Microsoft Active Directory, use UNIX authentication, this is likely a good module for you.
+
+The D7 LTSR version is maintained by visuaFUSION Systems Solutions. Feel free to add improvement suggestions to the issue queue but understand that there are no immediate plans to implement new features.

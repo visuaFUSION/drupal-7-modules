@@ -190,6 +190,20 @@ class LdapUserConf {
   public $provisionsLdapEvents = [];
   public $provisionsDrupalEvents = [];
 
+  /**
+   * Whether LDAP accounts should be created based on Drupal registration settings.
+   *
+   * @var bool
+   */
+  public $createLDAPAccounts = FALSE;
+
+  /**
+   * Whether LDAP accounts require admin approval based on Drupal registration settings.
+   *
+   * @var bool
+   */
+  public $createLDAPAccountsAdminApproval = FALSE;
+
   public $saveable = [
     'drupalAcctProvisionServer',
     'ldapEntryProvisionServer',
@@ -1043,7 +1057,7 @@ class LdapUserConf {
    *
    *   $user_edit data returned by reference
    */
-  public function provisionDrupalAccount($account = FALSE, &$user_edit, $ldap_user = NULL, $save = TRUE) {
+  public function provisionDrupalAccount($account = FALSE, &$user_edit = [], $ldap_user = NULL, $save = TRUE) {
 
     $watchdog_tokens = [];
     /**

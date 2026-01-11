@@ -125,6 +125,8 @@ class LdapTestCase extends DrupalWebTestCase {
    */
   public function testId($description = NULL, $method = NULL) {
 
+    // PHP 7.0+: Call debug_backtrace() before $description may be modified.
+    $trace = debug_backtrace();
     static $test_id;
     static $i;
 
@@ -138,7 +140,6 @@ class LdapTestCase extends DrupalWebTestCase {
       return $test_id . '.' . $i;
     }
     if (!$method) {
-      $trace = debug_backtrace();
 
       $caller = array_shift($trace);
       $caller = array_shift($trace);
@@ -161,12 +162,12 @@ class LdapTestCase extends DrupalWebTestCase {
     if (!empty($test_data['search_results'][$filter][$domain]) &&
             in_array($group_dn, $test_data['search_results'][$filter][$domain])) {
       $test_data['search_results'][$filter][$domain] = array_diff($test_data['search_results'][$filter][$domain], [$group_dn]);
-      $test_data['search_results'][$filter][$domain]['count'] = count($test_data['search_results'][$filter][$domain] - 1);
+      $test_data['search_results'][$filter][$domain]['count'] = count($test_data['search_results'][$filter][$domain]) - 1;
     }
 
     if (!empty($test_data['users'][$user_dn]['attr']['memberof']) && in_array($group_dn, $test_data['users'][$user_dn]['attr']['memberof'])) {
       $test_data['users'][$user_dn]['attr']['memberof'] = array_diff($test_data['users'][$user_dn]['attr']['memberof'], [$group_dn]);
-      $test_data['users'][$user_dn]['attr']['memberof']['count'] = count($test_data['users'][$user_dn]['attr']['memberof'] - 1);
+      $test_data['users'][$user_dn]['attr']['memberof']['count'] = count($test_data['users'][$user_dn]['attr']['memberof']) - 1;
     }
 
     if (!empty($test_data['ldap'][$user_dn]['memberof']) && in_array($group_dn, $test_data['ldap'][$user_dn]['memberof'])) {
@@ -177,7 +178,7 @@ class LdapTestCase extends DrupalWebTestCase {
     if (!empty($test_data['groups'][$group_dn]['attr']['member']) && in_array($group_dn, $test_data['groups'][$group_dn]['attr']['member'])) {
       $members = array_diff($test_data['groups'][$group_dn]['attr']['member'], [$group_dn]);
       $test_data['groups'][$group_dn]['attr']['member'] = $members;
-      $test_data['groups'][$group_dn]['attr']['member'][$i]['count'] = count($members - 1);
+      $test_data['groups'][$group_dn]['attr']['member']['count'] = count($members) - 1;
     }
   }
 

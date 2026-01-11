@@ -133,8 +133,11 @@ function _webserver_auth_route() {
     drupal_alter('webserver_auth_authname', $authname);
   }
 
-  if (! $authname) {
-    // Empty authname is anonymous: close any current session.
+  /* Empty authname is anonymous: if configured so, close any current session.
+     This defaults to TRUE (secure behavior) but is auto-detected during install:
+     GSSAPI/Kerberos setups get FALSE because REMOTE_USER may only be set on
+     certain paths. IIS/standard auth setups get TRUE. */
+  if (variable_get('webserver_auth_logout_empty_remote_user', TRUE) && ! $authname) {
     if (user_is_logged_in()) {
       _webserver_auth_logout();
     }
@@ -142,13 +145,16 @@ function _webserver_auth_route() {
     return;
   }
 
-  /* Check if the authname matches the current session.
-     If it does, we're done. */
+  /* Check if the authname matches the current session. If it does, we're done.
+     Empty authname here means that the module is not configured to logout the
+     user in this case, and therefore we're done. However, in the case it is
+     nonempty and different from the current session, we want to log the current
+     user out and attempt to log in the user represented by the new authname. */
   if (user_is_logged_in()) {
 
     /* Validate session authname.  We don't match against uid as authmap may
        link to a user with uid different than authname. */
-    if (isset($_SESSION['webserver_authname'])
+    if (! $authname || isset($_SESSION['webserver_authname'])
 	&& ($_SESSION['webserver_authname'] == $authname)) {
       return;
     }
@@ -161,13 +167,7 @@ function _webserver_auth_route() {
     return;
   }
 
-  // Check if we should create accounts for unknown users
-  if (! variable_get('webserver_auth_create_user', FALSE)) {
-    watchdog('webserver_auth', 'user @authname does not exist in the database or is not included in the authmap table for webserver_auth, and the create user option is disabled.', array('@authname' => $authname));
-    return;
-  }
-
-  // First check if just authmap is missing
+  // First check if just authmap is missing for an existing user
   $account = user_load_by_name($authname);
   if ($account) {
 
@@ -180,7 +180,7 @@ function _webserver_auth_route() {
     /* match_existing must be TRUE initially so admin users aren't logged out
        when they enable the module */
     if (! variable_get('webserver_auth_match_existing', TRUE)) {
-      watchdog('webserver_auth', 'account exists for user @authname, but matching against existing accounts is disabled.  Therefore you must manually create an entry in the authmap table for webserver_auth.', array('@authname', $authname), WATCHDOG_ERROR);
+      watchdog('webserver_auth', 'account exists for user @authname, but matching against existing accounts is disabled.  Therefore you must manually create an entry in the authmap table for webserver_auth.', array('@authname' => $authname), WATCHDOG_ERROR);
       return;
     }
 
@@ -194,6 +194,12 @@ function _webserver_auth_route() {
     return;
   }
 
+  // Check if we should create accounts for unknown users
+  if (! variable_get('webserver_auth_create_user', FALSE)) {
+    watchdog('webserver_auth', 'user @authname does not exist in the database or is not included in the authmap table for webserver_auth, and the create user option is disabled.', array('@authname' => $authname));
+    return;
+  }
+
   /* We didn't find the user so we create an account for them.
      Note, hook_user_presave() is called during this process.
      That's where we modify the user account to add email etc. */
@@ -202,7 +208,7 @@ function _webserver_auth_route() {
     $_SESSION['webserver_authname'] = $authname;
   }
   catch(PDOException $e) {
-    watchdog('webserver_auth', 'unable to create new user record for user @authname.', array('@authname', $authname), WATCHDOG_ERROR);
+    watchdog('webserver_auth', 'unable to create new user record for user @authname.', array('@authname' => $authname), WATCHDOG_ERROR);
   }
 }
 
@@ -397,6 +403,14 @@ function _webserver_auth_settings($form, &$form_state) {
       '#title' => t('Skip authorisation table check'),
       '#default_value' => variable_get('webserver_auth_skip_check', FALSE),
       '#description' => t("Skips the authorisation check, allowing users to login even if they were not created though this module.  Not recommended if you use multiple authentication methods."),
+    ),
+    'webserver_auth_logout_empty_remote_user' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Logout the current user if the authname is empty'),
+      '#default_value' => variable_get('webserver_auth_logout_empty_remote_user', TRUE),
+      '#description' => t("Logout the current user if the remote user name retrieved from the environment variables is empty."
+      . " This is the secure default for IIS Windows Auth and Apache Basic Auth where REMOTE_USER is always set."
+      . " Disable this for mod_auth_gssapi/Kerberos setups where REMOTE_USER may only be set on certain paths."),
     ),
   );
   return system_settings_form($form);

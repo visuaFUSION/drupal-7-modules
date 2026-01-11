@@ -432,7 +432,9 @@ class LdapServer {
       }
 
       if (drupal_strlen($pass) == 0 || drupal_strlen($userdn) == 0) {
-        watchdog('ldap_servers', "LDAP bind failure for user userdn=%userdn, pass=%pass.", ['%userdn' => $userdn, '%pass' => $pass]);
+        // Security: Do not log actual password, only indicate if it was empty.
+        $pass_status = drupal_strlen($pass) == 0 ? 'empty' : 'provided';
+        watchdog('ldap_servers', "LDAP bind failure for user userdn=%userdn (password %pass_status).", ['%userdn' => $userdn, '%pass_status' => $pass_status]);
         return LDAP_LOCAL_ERROR;
       }
       if (@!ldap_bind($this->connection, $userdn, $pass)) {
@@ -793,13 +795,19 @@ class LdapServer {
    *   or FALSE on error.
    */
   public function search($base_dn = NULL,
-  $filter,
-  $attributes = [],
+    $filter = NULL,
+    $attributes = [],
     $attrsonly = 0,
-  $sizelimit = 0,
-  $timelimit = 0,
-  $deref = NULL,
-  $scope = LDAP_SCOPE_SUBTREE) {
+    $sizelimit = 0,
+    $timelimit = 0,
+    $deref = NULL,
+    $scope = LDAP_SCOPE_SUBTREE) {
+
+    // PHP 8 compatibility: $filter now has default but is still required.
+    if ($filter === NULL) {
+      watchdog('ldap_servers', 'LdapServer::search() called without required filter parameter.');
+      return FALSE;
+    }
 
     /**
       * pagingation issues:
@@ -926,7 +934,17 @@ class LdapServer {
     $has_page_results = FALSE;
 
     do {
-      ldap_control_paged_result($this->connection, $this->searchPageSize, TRUE, $page_token);
+      // PHP 8 compatibility: ldap_control_paged_result() removed in PHP 8.0.
+      // Use LDAP controls API instead.
+      $servercontrols = [[
+        'oid' => LDAP_CONTROL_PAGEDRESULTS,
+        'value' => [
+          'size' => $this->searchPageSize,
+          'cookie' => $page_token,
+        ],
+      ]];
+      ldap_search($this->connection, $ldap_query_params['base_dn'], $ldap_query_params['filter'], ['*'], 0, $this->searchPageSize, -1, LDAP_DEREF_NEVER, $servercontrols);
+
       $result = $this->ldapQuery($ldap_query_params['scope'], $ldap_query_params);
 
       if ($page >= $this->searchPageStart) {
@@ -957,12 +975,17 @@ class LdapServer {
       else {
         $skipped_page = TRUE;
       }
-      @ldap_control_paged_result_response($this->connection, $result, $page_token, $estimated_entries);
+      // PHP 8 compatibility: ldap_control_paged_result_response() removed in PHP 8.0.
+      // Use ldap_parse_result() to get controls instead.
+      ldap_parse_result($this->connection, $result, $errcode, $matcheddn, $errmsg, $referrals, $controls);
+      if (isset($controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'])) {
+        $page_token = $controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'];
+      }
       if ($ldap_query_params['sizelimit'] && $this->ldapErrorNumber() == LDAP_SIZELIMIT_EXCEEDED) {
         // False positive error thrown.  do not set result limit error when $sizelimit specified.
       }
       elseif ($this->hasError()) {
-        watchdog('ldap_servers', 'ldap_control_paged_result_response() function error. LDAP Error: %message, ldap_list() parameters: %query',
+        watchdog('ldap_servers', 'LDAP paged result error. LDAP Error: %message, ldap_list() parameters: %query',
           ['%message' => $this->errorMsg('ldap'), '%query' => $ldap_query_params['query_display']],
           WATCHDOG_ERROR);
       }

@@ -94,6 +94,12 @@ function _ldap_servers_decrypt($input, $encryption_enabled = NULL) {
   }
 
   $key = variable_get('ldap_servers_encrypt_key', drupal_get_hash_salt());
-  list($encrypted_data, $iv) = explode('::', base64_decode($input), 2);
+
+  // Use explode safely to avoid undefined array key warning in PHP 8+.
+  $data_parts = explode('::', base64_decode($input), 2);
+  $encrypted_data = $data_parts[0];
+  // Default to empty string if $iv doesn't exist to avoid null deprecation.
+  $iv = isset($data_parts[1]) ? $data_parts[1] : '';
+
   return openssl_decrypt($encrypted_data, LDAP_SERVERS_CYPHER_MODE, $key, 0, $iv);
 }

@@ -1,7 +1,0 @@
-name = Webserver authentication
-description = Rely on the web server authentication instead of Drupal.
-core = 7.x
-configure = admin/config/people/webserver_auth
-
-version = "7.x-2026.01"
-project = "webserver_auth"

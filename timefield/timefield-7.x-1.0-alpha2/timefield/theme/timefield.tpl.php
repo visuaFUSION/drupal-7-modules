@@ -24,5 +24,5 @@
 
 ?>
 <div class="time-default">
-<?php print $time['time'] ?>
+<?php print check_plain($time['time']); ?>
 </div>

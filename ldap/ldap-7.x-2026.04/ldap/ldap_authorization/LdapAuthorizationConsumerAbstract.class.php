@@ -105,6 +105,13 @@ class LdapAuthorizationConsumerAbstract {
   ];
 
   /**
+   * Consumer mapping directions.
+   *
+   * @var string
+   */
+  public $mappingDirections = NULL;
+
+  /**
    * Constructor Method.
    *
    * @param string $consumer_type

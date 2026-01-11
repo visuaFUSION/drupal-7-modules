@@ -45,6 +45,11 @@ PHP 8.2 deprecated the creation of dynamic properties (assigning to `$this->prop
 - **Properties added:** `_errorMsgText`, `type`, `export_type`
 - **Problem:** Missing error property and CTools export properties (set dynamically in constructor)
 
+**LdapAuthorizationConsumerAbstract.class.php**
+- **File:** `ldap_authorization/LdapAuthorizationConsumerAbstract.class.php`
+- **Properties added:** `mappingDirections`
+- **Problem:** Constructor was assigning to undeclared property
+
 ---
 
 ## Submodules

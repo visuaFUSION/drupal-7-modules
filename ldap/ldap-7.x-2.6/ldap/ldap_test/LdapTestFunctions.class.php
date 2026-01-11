@@ -145,7 +145,11 @@ class LdapTestFunctions {
   /**
    *
    */
-  public function drupalLdapUpdateUser($edit = [], $ldap_authenticated = FALSE, $user) {
+  public function drupalLdapUpdateUser($edit = [], $ldap_authenticated = FALSE, $user = NULL) {
+    // PHP 8 compatibility: $user now has default but is still required.
+    if ($user === NULL) {
+      return FALSE;
+    }
     if (count($edit)) {
       $user = user_save($user, $edit);
     }

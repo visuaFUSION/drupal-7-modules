@@ -215,8 +215,9 @@ function ldap_authorization_test_form_submit($form, &$form_state) {
       $random_users = $select->execute()->fetchAllAssoc('name', PDO::FETCH_ASSOC);
     }
     catch (Exception $e) {
+      $query_string = isset($e->query_string) ? $e->query_string : '';
       drupal_set_message(t('db users query failed. Message = %message, query= %query',
-        ['%message' => $e->getMessage(), '%query' => $e->query_string]), 'error');
+        ['%message' => $e->getMessage(), '%query' => $query_string]), 'error');
       return "";
     }
 

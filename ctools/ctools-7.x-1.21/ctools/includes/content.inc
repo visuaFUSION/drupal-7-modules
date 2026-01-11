@@ -293,7 +293,7 @@ function ctools_content_render($type, $subtype, $conf, $keywords = array(), $arg
 
     $content = $function($subtype, $conf, $args, $pane_context, $incoming_content);
 
-    if (empty($content)) {
+    if (empty($content) || !is_object($content)) {
       return;
     }
 

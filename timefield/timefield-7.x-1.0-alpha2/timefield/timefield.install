@@ -113,7 +113,7 @@ function timefield_requirements($phase) {
         'title' => $t('jQuery Timepicker plugin'),
         'value' => $t('jQuery Timepicker plugin is not installed'),
         'severity' => REQUIREMENT_INFO,
-        'description' => $t('While not a requirement, timefield module\'s utility is greatly enhanced by including the !link', array('!link' => l($t("jQuery Timepicker plugin"), "http://fgelinas.com/code/timepicker"))),
+        'description' => $t('Optional: timefield module\'s utility is greatly enhanced by including the !link. Download the zip, rename the unzipped timepicker-master folder to jquery.timepicker and place it in the sites/all/libraries folder.', array('!link' => l($t("jQuery Timepicker plugin"), "https://github.com/fgelinas/timepicker"))),
       );
     }
   }

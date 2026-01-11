@@ -7,6 +7,11 @@
   Drupal.behaviors.timefield = {
     attach: function(context, settings) {
 
+      // Check if timepicker library is loaded and settings exist.
+      if (!$.fn.timepicker || !settings.timefield) {
+        return;
+      }
+
       // Iterate over timefield settings, which keyed by input class.
       for (var element in settings.timefield) {
         // Attach timepicker behavior to each matching element.

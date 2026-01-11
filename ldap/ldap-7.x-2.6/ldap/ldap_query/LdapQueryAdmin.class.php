@@ -30,8 +30,9 @@ class LdapQueryAdmin extends LdapQuery {
           ->execute();
       }
       catch (Exception $e) {
+        $query_string = isset($e->query_string) ? $e->query_string : '';
         drupal_set_message(t('query index query failed. Message = %message, query= %query',
-          ['%message' => $e->getMessage(), '%query' => $e->query_string]), 'error');
+          ['%message' => $e->getMessage(), '%query' => $query_string]), 'error');
         return [];
       }
     }

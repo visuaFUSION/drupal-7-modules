@@ -764,18 +764,26 @@ function timefield_field_widget_form(&$form, &$form_state, $field, $instance, $l
       );
 
       if (!$instance_settings['disable_plugin']) {
-        $js_settings = _timefield_js_settings($instance_class, $instance_settings['input_format']);
+        if (!isset($form_state['timefield'])) {
+          $form_state['timefield'] = array();
+        }
 
-        $element['#attached'] = array(
-          'library' => array(array('timefield', 'timepicker')),
-          'js' =>  array(
-            drupal_get_path('module', 'timefield') . '/js/timefield.js',
-            array(
-              'data' => array('timefield' => $js_settings),
-              'type' => 'setting',
-            )
-          ),
-        );
+        if (!in_array($instance_class, $form_state['timefield'])) {
+          $js_settings = _timefield_js_settings($instance_class, $instance_settings['input_format']);
+
+          $element['#attached'] = array(
+            'library' => array(array('timefield', 'timepicker')),
+            'js' => array(
+              drupal_get_path('module', 'timefield') . '/js/timefield.js',
+              array(
+                'data' => array('timefield' => $js_settings),
+                'type' => 'setting',
+              ),
+            ),
+          );
+
+          $form_state['timefield'][] = $instance_class;
+        }
       }
 
       if ($settings['weekly_summary_with_label']) {
@@ -884,7 +892,7 @@ function template_preprocess_timefield_formatter(&$variables) {
           $days[$day] = $day_text;
         }
       }
-      if ($days) {
+      if (isset($days)) {
         $variables['time']['days'] = $days;
         $variables['time']['time'] = implode(', ', $days) . ' ' . $variables['time']['time'];
       }
@@ -1285,7 +1293,7 @@ function timefield_property_info_callback(&$info, $entity_type, $field, $instanc
     foreach (_timefield_weekly_summary_days() as $index => $label) {
       $property['property info'][$index] = array(
         'label' => $label,
-        'description' => t('If this schedule applies to !day', array('!day' => $label)),
+        'description' => t('If this schedule applies to @day', array('@day' => $label)),
         'type' => 'boolean',
         'getter callback' => 'entity_property_verbatim_get',
         'setter callback' => 'entity_property_verbatim_set',

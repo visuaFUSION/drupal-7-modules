@@ -44,7 +44,7 @@ function ctools_term_context($arg = NULL, $conf = NULL, $empty = FALSE) {
   if (is_object($arg)) {
     $term = $arg;
   }
-  else {
+  elseif (isset($conf['input_form'])) {
     switch ($conf['input_form']) {
       case 'tid':
       default:
@@ -79,6 +79,10 @@ function ctools_term_context($arg = NULL, $conf = NULL, $empty = FALSE) {
     if (empty($term)) {
       return NULL;
     }
+  }
+  else {
+    // Config is missing input_form, cannot process.
+    return FALSE;
   }
 
   if ($vocabularies && !isset($vocabularies[$term->vocabulary_machine_name])) {

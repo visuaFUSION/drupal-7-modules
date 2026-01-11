@@ -9,28 +9,54 @@ class TimefieldHanlderFieldTimefield extends views_handler_field_field {
    * Add additional tokens
    */
   function add_self_tokens(&$tokens, $item) {
+    // If $item['raw'] exists then we can use it.
+    if (isset($item['raw']) && !empty($item['raw']['value_formatted'])) {
+      $value = date_parse($item['raw']['value_formatted']);
 
-    $value = date_parse($item['raw']['value_formatted']);
-
-    $tokens['[' . $this->options['id'] . '-value-hour' . ']'] = $value['hour'] > 12 ? $value['hour'] - 12 : $value['hour'];
-    $tokens['[' . $this->options['id'] . '-value-24hour' . ']'] = $value['hour'];
-    $tokens['[' . $this->options['id'] . '-value-minute' . ']'] = $value['minute'];
-    $tokens['[' . $this->options['id'] . '-value-ampm' . ']'] = $value['hour'] > 11 ? t('pm') : t('am');
-    $tokens['[' . $this->options['id'] . '-value-upper-ampm' . ']'] = $value['hour'] > 11 ? t('PM') : t('AM');
+      $tokens['[' . $this->options['id'] . '-value-hour' . ']'] = $value['hour'] > 12 ? $value['hour'] - 12 : $value['hour'];
+      $tokens['[' . $this->options['id'] . '-value-24hour' . ']'] = str_pad((string) $value['hour'], 2, "0", STR_PAD_LEFT);
+      $tokens['[' . $this->options['id'] . '-value-minute' . ']'] = str_pad((string) $value['minute'], 2, "0", STR_PAD_LEFT);
+      $tokens['[' . $this->options['id'] . '-value-ampm' . ']'] = $value['hour'] > 11 ? t('pm') : t('am');
+      $tokens['[' . $this->options['id'] . '-value-upper-ampm' . ']'] = $value['hour'] > 11 ? t('PM') : t('AM');
+    }
+    // Or set tokens as empty.
+    else {
+      $tokens['[' . $this->options['id'] . '-value-hour' . ']'] = '';
+      $tokens['[' . $this->options['id'] . '-value-24hour' . ']'] = '';
+      $tokens['[' . $this->options['id'] . '-value-minute' . ']'] = '';
+      $tokens['[' . $this->options['id'] . '-value-ampm' . ']'] = '';
+      $tokens['[' . $this->options['id'] . '-value-upper-ampm' . ']'] = '';
+    }
 
     if ($this->field_info['settings']['totime']) {
-      $value = date_parse($item['raw']['value2_formatted']);
+      if (isset($item['raw']) && !empty($item['raw']['value2_formatted'])) {
+        $value = date_parse($item['raw']['value2_formatted']);
 
-    $tokens['[' . $this->options['id'] . '-value2-hour' . ']'] = $value['hour'] > 12 ? $value['hour'] - 12 : $value['hour'];
-    $tokens['[' . $this->options['id'] . '-value2-24hour' . ']'] = $value['hour'];
-    $tokens['[' . $this->options['id'] . '-value2-minute' . ']'] = $value['minute'];
-    $tokens['[' . $this->options['id'] . '-value2-ampm' . ']'] = $value['hour'] > 11 ? t('pm') : t('am');
-    $tokens['[' . $this->options['id'] . '-value2-upper-ampm' . ']'] = $value['hour'] > 11 ? t('PM') : t('AM');
+        $tokens['[' . $this->options['id'] . '-value2-hour' . ']'] = $value['hour'] > 12 ? $value['hour'] - 12 : $value['hour'];
+        $tokens['[' . $this->options['id'] . '-value2-24hour' . ']'] = str_pad((string) $value['hour'], 2, "0", STR_PAD_LEFT);
+        $tokens['[' . $this->options['id'] . '-value2-minute' . ']'] = str_pad((string) $value['minute'], 2, "0", STR_PAD_LEFT);
+        $tokens['[' . $this->options['id'] . '-value2-ampm' . ']'] = $value['hour'] > 11 ? t('pm') : t('am');
+        $tokens['[' . $this->options['id'] . '-value2-upper-ampm' . ']'] = $value['hour'] > 11 ? t('PM') : t('AM');
+      }
+      else {
+        $tokens['[' . $this->options['id'] . '-value2-hour' . ']'] = '';
+        $tokens['[' . $this->options['id'] . '-value2-24hour' . ']'] = '';
+        $tokens['[' . $this->options['id'] . '-value2-minute' . ']'] = '';
+        $tokens['[' . $this->options['id'] . '-value2-ampm' . ']'] = '';
+        $tokens['[' . $this->options['id'] . '-value2-upper-ampm' . ']'] = '';
+      }
     }
 
     if ($this->field_info['settings']['weekly_summary']) {
-      foreach(_timefield_weekly_summary_days() as $day => $daytext) {
-        $tokens['[' . $this->options['id'] . '-' . $day . ']'] = $item['raw'][$day] ? $daytext : '';
+      if (isset($item['raw'])) {
+        foreach (_timefield_weekly_summary_days() as $day => $daytext) {
+          $tokens['[' . $this->options['id'] . '-' . $day . ']'] = $item['raw'][$day] ? $daytext : '';
+        }
+      }
+      else {
+        foreach (_timefield_weekly_summary_days() as $day => $daytext) {
+          $tokens['[' . $this->options['id'] . '-' . $day . ']'] = '';
+        }
       }
     }
   }
